@@ -1,46 +1,27 @@
-import { createContext, useEffect, useState } from "react"
+import { createContext, useDebugValue, useEffect, useState } from "react"
 
 export const Context = createContext(null)
 
 const ContextProvider = ({ children }) => {
-    const [dogs, setDogs] = useState([])
+    // * State Store across App
+    const [displayDogs, setDisplayDogs] = useState([])
+    const [allBreeds, setAllBreeds] = useState([])
     const [isLoggedIn, setLoggedIn] = useState(false)
     const [dogFilter, setDogFilter] = useState("")
     const [sortAsc, setSortAsc] = useState(true)
 
+    // * Constants
     const BASE_URL = "https://frontend-take-home-service.fetch.com"
-
-    const fetchData = async (
-        endpoint,
-        method = "GET",
-        options = {},
-        search = {}
-    ) => {
-        try {
-            const resData = {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-            const res = await fetch(`${BASE_URL}${endpoint}`, resData)
-
-            if (!res.ok) {
-                throw new Error(`Error ${res.status}: ${res.statusText}`)
-            }
-            return await res.json()
-        } catch (err) {
-            console.error("Error in Fetch:", err)
-            throw err
-        }
+    const BASE_REQ_OBJ = {
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
     }
 
     const postAuth = async ({ loginData = {}, isLogin = true }) => {
         try {
             const resData = {
+                ...BASE_REQ_OBJ,
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
                 body: JSON.stringify(loginData),
             }
             const res = await fetch(
@@ -51,6 +32,7 @@ const ContextProvider = ({ children }) => {
             if (!res.ok) {
                 throw new Error(`Error ${res.status}: ${res.statusText}`)
             }
+            setLoggedIn(isLogin)
         } catch (error) {
             console.error("Error in Fetch:", error)
             throw error
@@ -59,11 +41,31 @@ const ContextProvider = ({ children }) => {
 
     const getBreeds = async () => {
         try {
-            const resData = {
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
+            const res = await fetch(
+                `${BASE_URL}${"/dogs/breeds"}`,
+                BASE_REQ_OBJ
+            )
+
+            if (!res.ok) {
+                throw new Error(`Error ${res.status}: ${res.statusText}`)
             }
-            const res = await fetch(`${BASE_URL}${"/dogs/breeds"}`, resData)
+            const resJson = await res.json()
+            console.log(resJson)
+            setAllBreeds(resJson)
+            return resJson
+        } catch (err) {
+            console.error("Error in Fetch:", err)
+            throw err
+        }
+    }
+
+    const searchDogs = async ({ search = {} }) => {
+        try {
+            const queryString = createURLQueryString(search)
+            const res = await fetch(
+                `${BASE_URL}/dogs/search/?${queryString}`,
+                BASE_REQ_OBJ
+            )
 
             if (!res.ok) {
                 throw new Error(`Error ${res.status}: ${res.statusText}`)
@@ -75,6 +77,17 @@ const ContextProvider = ({ children }) => {
             console.error("Error in Fetch:", err)
             throw err
         }
+    }
+
+    const createURLQueryString = (searchOptions) => {
+        const urlQueryOutput = []
+        for (let k in searchOptions) {
+            console.log(k, searchOptions[k])
+            const query = k + "=" + searchOptions[k]
+            console.log(query)
+            urlQueryOutput.push(query)
+        }
+        return urlQueryOutput.join("&").replace(" ", "%20")
     }
 
     const handleLogout = () => {
@@ -89,13 +102,19 @@ const ContextProvider = ({ children }) => {
 
     const store = {
         testing: "testing",
-        dogs,
+        displayDogs,
+        setDisplayDogs,
         isLoggedIn,
         setLoggedIn,
         dogFilter,
         setDogFilter,
         postAuth,
         getBreeds,
+        handleLogout,
+        sortAsc,
+        setSortAsc,
+        allBreeds,
+        searchDogs,
     }
 
     return <Context.Provider value={store}>{children}</Context.Provider>

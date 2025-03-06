@@ -1,5 +1,6 @@
 import { useContext, useState } from "react"
 import { Context } from "../contexts/Context"
+import { useNavigate } from "react-router"
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -8,17 +9,21 @@ const Login = () => {
     })
 
     const { postAuth, isLoggedIn, getBreeds } = useContext(Context)
+    const navigate = useNavigate()
 
     const handleChange = (e) =>
         setFormData((prevFormData) => {
             return { ...prevFormData, [e.target.name]: e.target.value }
         })
+
     const handleLogin = async (e) => {
         e.preventDefault()
         console.log("LOGGING IN")
         await postAuth({ loginData: formData })
-        // debugger
+        console.log("LOGGED IN")
+        navigate("/")
     }
+
     return (
         <div>
             Login
@@ -45,8 +50,6 @@ const Login = () => {
                 </label>
                 <button type="submit">Login</button>
             </form>
-            <button onClick={getBreeds}>Test Breeds</button>
-            <button onClick={() => postAuth({ isLogin: false })}>logout</button>
         </div>
     )
 }
