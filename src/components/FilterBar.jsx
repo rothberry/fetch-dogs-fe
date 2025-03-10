@@ -10,6 +10,8 @@ const FilterBar = () => {
         allBreeds,
         getBreeds,
         searchDogs,
+        pageForward,
+        pagination,
     } = useContext(Context)
 
     useEffect(() => {
@@ -60,6 +62,12 @@ const FilterBar = () => {
                     {sortAsc ? "ASC" : "DESC"}
                 </button>
             </label>
+            {pagination.prevUrl ? (
+                <button onClick={() => pageForward(false)}>Previous</button>
+            ) : null}
+            {pagination.nextUrl ? (
+                <button onClick={pageForward}>Next</button>
+            ) : null}
         </div>
     )
 }
