@@ -55,7 +55,6 @@ const ContextProvider = ({ children }) => {
                 throw new Error(`Error ${res.status}: ${res.statusText}`)
             }
             const resJson = await res.json()
-            console.log(resJson)
             setAllBreeds(resJson)
             return resJson
         } catch (err) {
@@ -64,12 +63,12 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const searchDogs = async ({ search = {} }) => {
-        console.log("SEARCHING FOR DOG IDS AND PAGES")
+    const searchDogs = async (searchOptions = {}) => {
+        console.log("SEARCHING FOR DOG IDS AND PAGES", searchOptions)
         // query for breeds returns an array of
         // next, prev, resultIds: Array, total: int
         try {
-            const queryString = createURLQueryString(search)
+            const queryString = createURLQueryString(searchOptions)
             const resultsData = await fetch(
                 `${BASE_URL}/dogs/search/?${queryString}`,
                 BASE_REQ_OBJ
@@ -118,8 +117,8 @@ const ContextProvider = ({ children }) => {
         }
     }
     const createURLQueryString = (searchOptions) => {
-        console.log("CREATING QUERY STR")
-        if (Object.entries(searchOptions).length > 1) {
+        console.log("CREATING QUERY STR for ", searchOptions)
+        if (Object.entries(searchOptions).length > 0) {
             const urlQueryOutput = []
             for (let k in searchOptions) {
                 console.log(k, searchOptions[k])
@@ -127,9 +126,11 @@ const ContextProvider = ({ children }) => {
                 console.log(query)
                 urlQueryOutput.push(query)
             }
+            console.log(urlQueryOutput.join("&").replace(" ", "%20"))
             return urlQueryOutput.join("&").replace(" ", "%20")
         } else {
             // if no search is given return string to get breeds in alphbetical order
+            console.log("DEFAULT QUERY STR")
             return "sort=breed:asc"
         }
     }

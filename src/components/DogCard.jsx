@@ -7,10 +7,10 @@ const DogCard = ({ dogData: { id, name, age, breed, img, zip_code } }) => {
     return (
         <>
             <span>
-                id: {id}
                 name: {name}
                 age: {age}
                 breed: {breed}
+                {/* <img src={img} alt={name} /> */}
             </span>
             <br />
         </>

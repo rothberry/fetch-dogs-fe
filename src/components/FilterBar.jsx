@@ -2,11 +2,9 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import { Context } from "../contexts/Context"
 
 const FilterBar = () => {
-    const [activeBreeds, setActiveBreeds] = useState("")
+    const [activeBreeds, setActiveBreeds] = useState(null)
 
     const {
-        dogFilter,
-        setDogFilter,
         sortAsc,
         setSortAsc,
         allBreeds,
@@ -16,20 +14,22 @@ const FilterBar = () => {
 
     useEffect(() => {
         getBreeds()
+        searchDogs()
     }, [])
 
     useEffect(() => {
-        // if (!!activeBreeds) {
         searchDogs({ breeds: activeBreeds })
-        // }
     }, [activeBreeds])
 
     const createBreedOptions = () => {
-        return allBreeds.map((breed) => <option value={breed}>{breed}</option>)
+        return allBreeds.map((breed) => (
+            <option value={breed} key={breed}>
+                {breed}
+            </option>
+        ))
     }
     return (
         <div>
-            FilterBar
             <label for="breeds">Choose a breed:</label>
             {/* <input
                 placeholder="Search for breed"
@@ -56,10 +56,9 @@ const FilterBar = () => {
             {/* <button onClick={handleSearch}>Search</button> */}
             <label>
                 Sorting
-                <button
-                    value={sortAsc ? "ASC" : "DESC"}
-                    onClick={(prev) => setSortAsc(!prev)}
-                />
+                <button onClick={() => setSortAsc((prev) => !prev)}>
+                    {sortAsc ? "ASC" : "DESC"}
+                </button>
             </label>
         </div>
     )

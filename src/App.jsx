@@ -11,8 +11,8 @@ import PageNotFound from "./components/PageNotFound"
 function App() {
     const { isLoggedIn } = useContext(Context)
     useEffect(() => {
-        console.clear()
-        console.log("loaded")
+        // console.clear()
+        console.log("app loaded")
     }, [])
 
     return (
