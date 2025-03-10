@@ -4,7 +4,6 @@ import { Context } from "../contexts/Context"
 const FilterBar = () => {
     const [activeBreeds, setActiveBreeds] = useState("")
 
-    const breedRef = useRef()
     const {
         dogFilter,
         setDogFilter,
@@ -19,21 +18,11 @@ const FilterBar = () => {
         getBreeds()
     }, [])
 
-    // useEffect(() => {
-    //     searchDogs({ breeds: activeBreeds })
-    // }, [activeBreeds])
-
-    const handleSearch = async (e) => {
-        await setActiveBreeds(e.target.value)
-
-        debugger
-    }
-
-    const handleChange = (e) => {
-        console.log(e.target.value)
-        debugger
-        // setActiveBreeds(e.target.value)
-    }
+    useEffect(() => {
+        // if (!!activeBreeds) {
+        searchDogs({ breeds: activeBreeds })
+        // }
+    }, [activeBreeds])
 
     const createBreedOptions = () => {
         return allBreeds.map((breed) => <option value={breed}>{breed}</option>)
@@ -51,8 +40,7 @@ const FilterBar = () => {
             <select
                 name="breeds"
                 id="breeds"
-                // defaultValue={"Select a Breed"}
-                onChange={handleChange} /* multiple */
+                onChange={(e) => setActiveBreeds(e.target.value)} /* multiple */
             >
                 <option disabled selected value>
                     {" "}

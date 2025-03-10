@@ -9,6 +9,10 @@ const ContextProvider = ({ children }) => {
     const [isLoggedIn, setLoggedIn] = useState(false)
     const [dogFilter, setDogFilter] = useState("")
     const [sortAsc, setSortAsc] = useState(true)
+    const [pagination, setPagination] = useState({
+        nextUrl: null,
+        prevUrl: null,
+    })
 
     // * Constants
     const BASE_URL = "https://frontend-take-home-service.fetch.com"
@@ -40,6 +44,7 @@ const ContextProvider = ({ children }) => {
     }
 
     const getBreeds = async () => {
+        console.log("GETTING ALL BREEDS")
         try {
             const res = await fetch(
                 `${BASE_URL}${"/dogs/breeds"}`,
@@ -60,38 +65,82 @@ const ContextProvider = ({ children }) => {
     }
 
     const searchDogs = async ({ search = {} }) => {
+        console.log("SEARCHING FOR DOG IDS AND PAGES")
+        // query for breeds returns an array of
+        // next, prev, resultIds: Array, total: int
         try {
             const queryString = createURLQueryString(search)
-            const res = await fetch(
+            const resultsData = await fetch(
                 `${BASE_URL}/dogs/search/?${queryString}`,
                 BASE_REQ_OBJ
             )
 
-            if (!res.ok) {
-                throw new Error(`Error ${res.status}: ${res.statusText}`)
+            if (!resultsData.ok) {
+                throw new Error(
+                    `Error ${resultsData.status}: ${resultsData.statusText}`
+                )
             }
-            const resJson = await res.json()
-            console.log(resJson)
-            return resJson
+            const resultsDataJson = await resultsData.json()
+            console.log(resultsDataJson)
+            setPagination({
+                nextUrl: resultsDataJson.next || null,
+                prevUrl: resultsDataJson.prev || null,
+            })
+            await getDogs(resultsDataJson.resultIds)
+            return
         } catch (err) {
             console.error("Error in Fetch:", err)
             throw err
         }
     }
 
-    const createURLQueryString = (searchOptions) => {
-        const urlQueryOutput = []
-        for (let k in searchOptions) {
-            console.log(k, searchOptions[k])
-            const query = k + "=" + searchOptions[k]
-            console.log(query)
-            urlQueryOutput.push(query)
+    const getDogs = async (dogResultsIds = []) => {
+        console.log("GETTING DOG OBJECTS")
+        try {
+            const dogResData = {
+                ...BASE_REQ_OBJ,
+                method: "POST",
+                body: JSON.stringify(dogResultsIds),
+            }
+            const dogRes = await fetch(`${BASE_URL}/dogs`, dogResData)
+            if (!dogRes.ok) {
+                throw new Error(
+                    `Error ${resultsData.status}: ${resultsData.statusText}`
+                )
+            }
+            const dogResJson = await dogRes.json()
+            console.log({ dogResJson })
+            setDisplayDogs(dogResJson)
+            return
+        } catch (err) {
+            console.error("Error in Fetch:", err)
+            throw err
         }
-        return urlQueryOutput.join("&").replace(" ", "%20")
+    }
+    const createURLQueryString = (searchOptions) => {
+        console.log("CREATING QUERY STR")
+        if (Object.entries(searchOptions).length > 1) {
+            const urlQueryOutput = []
+            for (let k in searchOptions) {
+                console.log(k, searchOptions[k])
+                const query = k + "=" + searchOptions[k]
+                console.log(query)
+                urlQueryOutput.push(query)
+            }
+            return urlQueryOutput.join("&").replace(" ", "%20")
+        } else {
+            // if no search is given return string to get breeds in alphbetical order
+            return "sort=breed:asc"
+        }
     }
 
     const handleLogout = () => {
         postAuth({ isLogin: false })
+    }
+
+    const pageForward = (direction = true) => {
+        console.log(`TURNING THE PAGE ${direction ? "FORWARD" : "BACKWARD"}`)
+        console.log(pagination)
     }
 
     useEffect(() => {
@@ -115,6 +164,8 @@ const ContextProvider = ({ children }) => {
         setSortAsc,
         allBreeds,
         searchDogs,
+        pagination,
+        pageForward,
     }
 
     return <Context.Provider value={store}>{children}</Context.Provider>

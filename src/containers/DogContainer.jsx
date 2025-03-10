@@ -3,13 +3,16 @@ import DogCard from "../components/DogCard"
 import { Context } from "../contexts/Context"
 
 const DogContainer = () => {
-    // const { getBreeds } = useContext(Context)
-    // const mappedDogs = dogs.map((d) => <DogCard props={d} />)
+    const { displayDogs, pageForward } = useContext(Context)
+    const mappedDogs = displayDogs.map((d) => <DogCard dogData={d} />)
 
     return (
         <div>
             DogContainer
-            {"mappedDogs"}
+            <br />
+            {mappedDogs}
+            <button onClick={() => pageForward(false)}>Previous</button>
+            <button onClick={pageForward}>Next</button>
         </div>
     )
 }
