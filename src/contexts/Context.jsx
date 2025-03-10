@@ -63,16 +63,21 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const searchDogs = async (searchOptions = {}) => {
+    const searchDogs = async (searchOptions = {}, queryBypassStr = null) => {
         console.log("SEARCHING FOR DOG IDS AND PAGES", searchOptions)
         // query for breeds returns an array of
         // next, prev, resultIds: Array, total: int
         try {
-            const queryString = createURLQueryString(searchOptions)
-            const resultsData = await fetch(
-                `${BASE_URL}/dogs/search/?${queryString}`,
-                BASE_REQ_OBJ
-            )
+            let queryString
+            let fullUrl
+            if (queryBypassStr) {
+                fullUrl = `${BASE_URL}${queryBypassStr}`
+            } else {
+                queryString = createURLQueryString(searchOptions)
+                fullUrl = `${BASE_URL}/dogs/search/?${queryString}`
+            }
+            console.log(fullUrl)
+            const resultsData = await fetch(fullUrl, BASE_REQ_OBJ)
 
             if (!resultsData.ok) {
                 throw new Error(
@@ -142,6 +147,11 @@ const ContextProvider = ({ children }) => {
     const pageForward = (direction = true) => {
         console.log(`TURNING THE PAGE ${direction ? "FORWARD" : "BACKWARD"}`)
         console.log(pagination)
+        if (direction) {
+            searchDogs({}, pagination.nextUrl)
+        } else {
+            searchDogs({}, pagination.prevUrl)
+        }
     }
 
     useEffect(() => {
