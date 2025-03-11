@@ -1,4 +1,5 @@
 import { createContext, useDebugValue, useEffect, useState } from "react"
+import { useNavigate } from "react-router"
 
 export const Context = createContext(null)
 
@@ -12,11 +13,14 @@ const ContextProvider = ({ children }) => {
         asc: true,
     })
     const [activeBreeds, setActiveBreeds] = useState(null)
+    const [matchIds, setMatchIds] = useState([])
 
     const [pagination, setPagination] = useState({
         nextUrl: null,
         prevUrl: null,
     })
+
+    const navigate = useNavigate()
 
     // * Constants
     const BASE_URL = "https://frontend-take-home-service.fetch.com"
@@ -41,6 +45,7 @@ const ContextProvider = ({ children }) => {
                 throw new Error(`Error ${res.status}: ${res.statusText}`)
             }
             setLoggedIn(isLogin)
+            isLoggedIn ? navigate("/") : navigate("login")
             // debugger
             // localStorage.setItem("fetch-access-token")
         } catch (error) {
@@ -123,6 +128,12 @@ const ContextProvider = ({ children }) => {
             }
             const dogResJson = await dogRes.json()
             console.log({ dogResJson })
+            if (matchDogs) {
+                await setDisplayDogs(
+                    displayDogs.filter(({ id }) => id == dogResJson.match)
+                )
+                return
+            }
             setDisplayDogs(dogResJson)
             return
         } catch (err) {
@@ -130,6 +141,7 @@ const ContextProvider = ({ children }) => {
             throw err
         }
     }
+
     const createURLQueryString = (searchOptions) => {
         console.log("CREATING QUERY STR for ", searchOptions)
         if (Object.entries(searchOptions).length > 0) {
@@ -146,6 +158,7 @@ const ContextProvider = ({ children }) => {
             )
             return (
                 urlQueryOutput.join("&").replace(" ", "%20") +
+                "&" +
                 createSortOptions(sortOptions)
             )
         } else {
@@ -153,6 +166,23 @@ const ContextProvider = ({ children }) => {
             console.log("DEFAULT QUERY STR")
             return createSortOptions(sortOptions)
         }
+    }
+
+    const handleMatch = (matchId) => {
+        setMatchIds((previousMatches) => {
+            if (previousMatches.includes(matchId)) {
+                console.log("REMOVING POTENTIAL MATCH")
+                return previousMatches.filter((id) => id !== matchId)
+            } else {
+                console.log("ADDING POTENTIAL MATCH")
+                return [...previousMatches, matchId]
+            }
+        })
+    }
+
+    const checkMatch = async () => {
+        const matchId = await getDogs(matchIds, true)
+        navigate("result")
     }
 
     const createSortOptions = () => {
@@ -202,6 +232,10 @@ const ContextProvider = ({ children }) => {
         pageForward,
         activeBreeds,
         setActiveBreeds,
+        handleMatch,
+        matchIds,
+        getDogs,
+        checkMatch,
     }
 
     return <Context.Provider value={store}>{children}</Context.Provider>

@@ -42,9 +42,19 @@ const Navigation = () => {
                 Home
             </NavLink>
             {isLoggedIn ? (
-                <button as="NavLink" style={linkStyle} onClick={handleLogout}>
-                    Logout
-                </button>
+                <>
+                    <NavLink
+                        to="/matches"
+                        style={linkStyle}
+                        actiiveStyle={activeLinkStyle}
+                    >
+                        Check Matches
+                    </NavLink>
+
+                    <button style={linkStyle} onClick={handleLogout}>
+                        Logout
+                    </button>
+                </>
             ) : (
                 <NavLink
                     to="/login"

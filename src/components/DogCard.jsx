@@ -1,4 +1,5 @@
-import { useEffect } from "react"
+import { useContext, useEffect } from "react"
+import { Context } from "../contexts/Context"
 
 const cardStyle = {
     width: "100%",
@@ -25,16 +26,53 @@ const contentStyle = {
     flexGrow: 1,
 }
 
-const DogCard = ({ id, name, age, breed, img, zip_code }) => {
+const cardStyleMatch = {
+    ...cardStyle,
+    maxWidth: "100%",
+    boxShadow: "0 8px 12px blue",
+    border: "5px solid",
+    textAlign: "centered",
+}
+
+const imageStyleMatch = {
+    ...imageStyle,
+    maxHeight: "100%",
+}
+
+const DogCard = ({
+    id,
+    name,
+    age,
+    breed,
+    img,
+    zip_code,
+    showResult = false,
+}) => {
+    const { handleMatch, matchIds } = useContext(Context)
+
     return (
-        <div style={cardStyle}>
-            <img src={img} alt={name} style={imageStyle} />
+        <div style={showResult ? cardStyleMatch : cardStyle}>
+            {showResult ? (
+                <h1>CONGRATS ON YOUR NEW MEMBER OF THE FAMILY</h1>
+            ) : null}
+            <img
+                src={img}
+                alt={name}
+                style={showResult ? imageStyleMatch : imageStyle}
+            />
             <div style={contentStyle}>
-                <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>{name}</h2>
-                <p style={{ fontSize: "14px", color: "#555" }}>Age: {age}</p>
-                <p style={{ fontSize: "14px", color: "#555" }}>
-                    Breed: {breed}
-                </p>
+                {showResult ? null : (
+                    <span>
+                        Check for match:{" "}
+                        <span onClick={() => handleMatch(id)}>
+                            {matchIds.includes(id) ? "❤️" : "🤍"}
+                        </span>
+                    </span>
+                )}
+                <h2 style={{ fontWeight: "bold" }}>{name}</h2>
+                <p>Age: {age}</p>
+                <p>Breed: {breed}</p>
+                <p>ZipCode: {zip_code}</p>
             </div>
         </div>
     )
