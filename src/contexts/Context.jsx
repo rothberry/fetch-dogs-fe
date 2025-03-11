@@ -7,8 +7,12 @@ const ContextProvider = ({ children }) => {
     const [displayDogs, setDisplayDogs] = useState([])
     const [allBreeds, setAllBreeds] = useState([])
     const [isLoggedIn, setLoggedIn] = useState(false)
-    const [dogFilter, setDogFilter] = useState("")
-    const [sortAsc, setSortAsc] = useState(true)
+    const [sortOptions, setSortOptions] = useState({
+        field: "breed",
+        asc: true,
+    })
+    const [activeBreeds, setActiveBreeds] = useState(null)
+
     const [pagination, setPagination] = useState({
         nextUrl: null,
         prevUrl: null,
@@ -100,7 +104,7 @@ const ContextProvider = ({ children }) => {
         }
     }
 
-    const getDogs = async (dogResultsIds = []) => {
+    const getDogs = async (dogResultsIds = [], matchDogs = false) => {
         console.log("GETTING DOG OBJECTS")
         try {
             const dogResData = {
@@ -108,7 +112,10 @@ const ContextProvider = ({ children }) => {
                 method: "POST",
                 body: JSON.stringify(dogResultsIds),
             }
-            const dogRes = await fetch(`${BASE_URL}/dogs`, dogResData)
+            const dogRes = await fetch(
+                `${BASE_URL}/dogs${matchDogs ? "/match" : ""}`,
+                dogResData
+            )
             if (!dogRes.ok) {
                 throw new Error(
                     `Error ${resultsData.status}: ${resultsData.statusText}`
@@ -133,13 +140,23 @@ const ContextProvider = ({ children }) => {
                 console.log(query)
                 urlQueryOutput.push(query)
             }
-            console.log(urlQueryOutput.join("&").replace(" ", "%20"))
-            return urlQueryOutput.join("&").replace(" ", "%20")
+            console.log(
+                urlQueryOutput.join("&").replace(" ", "%20") +
+                    createSortOptions(sortOptions)
+            )
+            return (
+                urlQueryOutput.join("&").replace(" ", "%20") +
+                createSortOptions(sortOptions)
+            )
         } else {
             // if no search is given return string to get breeds in alphbetical order
             console.log("DEFAULT QUERY STR")
-            return "sort=breed:asc"
+            return createSortOptions(sortOptions)
         }
+    }
+
+    const createSortOptions = () => {
+        return `sort=${sortOptions.field}:${sortOptions.asc ? "asc" : "desc"}`
     }
 
     const handleLogout = () => {
@@ -158,9 +175,15 @@ const ContextProvider = ({ children }) => {
 
     useEffect(() => {
         console.log("context loaded")
-        // postAuth({ name: "test1", email: "test@test.com" })
-        // debugger
     }, [])
+
+    useEffect(() => {
+        if (activeBreeds) {
+            searchDogs({ breeds: activeBreeds })
+        } else {
+            searchDogs()
+        }
+    }, [activeBreeds, sortOptions])
 
     const store = {
         testing: "testing",
@@ -168,17 +191,17 @@ const ContextProvider = ({ children }) => {
         setDisplayDogs,
         isLoggedIn,
         setLoggedIn,
-        dogFilter,
-        setDogFilter,
         postAuth,
         getBreeds,
         handleLogout,
-        sortAsc,
-        setSortAsc,
+        sortOptions,
+        setSortOptions,
         allBreeds,
         searchDogs,
         pagination,
         pageForward,
+        activeBreeds,
+        setActiveBreeds,
     }
 
     return <Context.Provider value={store}>{children}</Context.Provider>

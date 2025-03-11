@@ -4,12 +4,12 @@ import "./App.css"
 import { Context } from "./contexts/Context"
 import Navigation from "./containers/Navigation"
 import Login from "./components/Login"
-import DogContainer from "./containers/DogContainer"
 import Home from "./containers/Home"
 import PageNotFound from "./components/PageNotFound"
+import ProtectedRoute from "./ProtectedRoute"
 
 function App() {
-    const { isLoggedIn } = useContext(Context)
+    // const { isLoggedIn } = useContext(Context)
     useEffect(() => {
         // console.clear()
         console.log("app loaded")
@@ -18,9 +18,18 @@ function App() {
     return (
         <>
             <Navigation />
+            <br />
             <Routes>
-                <Route index element={<Home />} />
+                <Route
+                    index
+                    element={
+                        <ProtectedRoute redirectPath={"login"}>
+                            <Home />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="login" element={<Login />} />
+
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </>

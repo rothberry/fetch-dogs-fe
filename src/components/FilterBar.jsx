@@ -2,16 +2,17 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import { Context } from "../contexts/Context"
 
 const FilterBar = () => {
-    const [activeBreeds, setActiveBreeds] = useState(null)
 
     const {
-        sortAsc,
-        setSortAsc,
+        sortOptions,
+        setSortOptions,
         allBreeds,
         getBreeds,
         searchDogs,
         pageForward,
         pagination,
+        activeBreeds,
+        setActiveBreeds,
     } = useContext(Context)
 
     useEffect(() => {
@@ -19,9 +20,6 @@ const FilterBar = () => {
         searchDogs()
     }, [])
 
-    useEffect(() => {
-        searchDogs({ breeds: activeBreeds })
-    }, [activeBreeds])
 
     const createBreedOptions = () => {
         return allBreeds.map((breed) => (
@@ -30,6 +28,17 @@ const FilterBar = () => {
             </option>
         ))
     }
+
+    const handleSort = (e) => {
+        if (e.target.name == sortOptions.field) {
+            setSortOptions((prev) => {
+                return { ...prev, asc: !prev.asc }
+            })
+        } else {
+            setSortOptions({ field: e.target.name, asc: true })
+        }
+    }
+
     return (
         <div>
             <label for="breeds">Choose a breed:</label>
@@ -51,9 +60,15 @@ const FilterBar = () => {
                 {createBreedOptions()}
             </select>
             <label>
-                Sorting
-                <button onClick={() => setSortAsc((prev) => !prev)}>
-                    {sortAsc ? "ASC" : "DESC"}
+                Sort Options
+                <button onClick={handleSort} name="name">
+                    {sortOptions.asc ? "Name ⬆️" : "Name ⬇️"}
+                </button>
+                <button onClick={handleSort} name="age">
+                    {sortOptions.asc ? "Age ⬆️" : "Age ⬇️"}
+                </button>
+                <button onClick={handleSort} name="breed">
+                    {sortOptions.asc ? "Breed ⬆️" : "Breed ⬇️"}
                 </button>
             </label>
             <br />

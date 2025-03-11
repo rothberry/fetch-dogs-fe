@@ -10,14 +10,14 @@ const containerStyle = {
     padding: "16px",
 }
 const DogContainer = () => {
-    const { displayDogs, sortAsc } = useContext(Context)
+    const { displayDogs, sortOptions } = useContext(Context)
     const mappedDogs = displayDogs.map((dogData) => (
         <DogCard {...dogData} key={dogData.id} />
     ))
 
     return (
         <div style={containerStyle}>
-            {sortAsc ? mappedDogs : mappedDogs.reverse()}
+            {sortOptions.asc ? mappedDogs : mappedDogs.reverse()}
         </div>
     )
 }
