@@ -50,18 +50,13 @@ const FilterBar = () => {
                 </option>
                 {createBreedOptions()}
             </select>
-            {/* <input
-                type="text"
-                placeholder="search"
-                onChange={(e) => setDogFilter(e)}
-            /> */}
-            {/* <button onClick={handleSearch}>Search</button> */}
             <label>
                 Sorting
                 <button onClick={() => setSortAsc((prev) => !prev)}>
                     {sortAsc ? "ASC" : "DESC"}
                 </button>
             </label>
+            <br />
             {pagination.prevUrl ? (
                 <button onClick={() => pageForward(false)}>Previous</button>
             ) : null}

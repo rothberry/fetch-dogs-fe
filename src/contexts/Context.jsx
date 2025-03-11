@@ -37,6 +37,8 @@ const ContextProvider = ({ children }) => {
                 throw new Error(`Error ${res.status}: ${res.statusText}`)
             }
             setLoggedIn(isLogin)
+            // debugger
+            // localStorage.setItem("fetch-access-token")
         } catch (error) {
             console.error("Error in Fetch:", error)
             throw error
